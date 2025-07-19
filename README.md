@@ -1,4 +1,74 @@
-# SpringSecurityWithJWT
+# 🔐 SpringSecurityWithJWT
+
+This repository demonstrates how to implement **JWT (JSON Web Token)** based authentication in a Spring Boot 3 application using **Spring Security 6**. It includes login, token generation, JWT validation, and protection of REST endpoints using custom filters.
+
+---
+
+## 📚 Features
+
+- JWT Token Generation & Validation
+- Stateless Authentication with Spring Security 6
+- Custom JWT Filter using `OncePerRequestFilter`
+- Secure REST APIs with `HttpSecurity`
+- User authentication with `UserDetailsService`
+- Token verification on each request
+- No session creation (stateless)
+
+---
+
+## 🛠️ Tech Stack
+
+- Java 17+
+- Spring Boot 3
+- Spring Security 6
+- jjwt (JSON Web Token library)
+- Maven
+
+---
+
+## 📦 Project Structure
+
+```
+com.pract.test
+├── controller         # API endpoints (login, register)
+├── model              # User model/entities
+├── repository         # JPA repositories
+├── service
+│   ├── JwtService.java           # Token generation & validation
+│   └── MyUserDetailsService.java# Custom user loader
+├── security
+│   ├── SecurityConfig.java      # Security filter chain setup
+│   └── JwtFilter.java           # Intercepts requests to validate JWT
+└── MainApplication.java         # Entry point
+```
+
+---
+
+## 🔐 JWT Token Flow
+
+### 1. User Login – `POST /login`
+- User sends `username` and `password`.
+- `AuthenticationManager` authenticates using `MyUserDetailsService`.
+- If valid, `JwtService.generateToken(username)` returns a signed token.
+
+### 2. Client Stores Token
+- Client receives and stores the token.
+- Sends it with future requests via:
+
+```http
+Authorization: Bearer <JWT_TOKEN>
+```
+
+### 3. Secured API Request – `GET /students`
+- Token is extracted and verified in `JwtFilter`.
+- `JwtService.extractUsername(token)` is used to identify the user.
+- If valid, Spring sets the `SecurityContext`.
+
+---
+
+## 🔄 Full Flow Diagram
+
+```
 Client ──> [POST /login] ──> [AuthenticationManager]
                            └──> [JwtService.generateToken()]
                                  └──> returns JWT
@@ -10,75 +80,51 @@ Client ──> [GET /students] with Header "Authorization: Bearer <JWT>"
                └──> validate token (signature + expiration)
                └──> set SecurityContext
                └──> continue to endpoint (Spring checks authorization)
+```
 
-JWT Token Flow: Generation → Authentication
-1. User Login (POST /login)
-User submits username & password to /login endpoint.
+---
 
-AuthenticationManager authenticates using MyUserDetailsService.
+## ▶️ How to Run
 
-If credentials are correct:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/narayanacharyuluchitroju/SpringSecurityWithJWT.git
+   cd SpringSecurityWithJWT
+   ```
 
-JwtService.generateToken(username) is called.
+2. Run the application:
+   ```bash
+   mvn spring-boot:run
+   ```
 
-A JWT token is generated with:
+3. Test with Postman:
+   - **Login:** `POST /login`
+   - **Use JWT:** Add header  
+     `Authorization: Bearer <token>` for protected routes
 
-subject: username
+---
 
-issuedAt + expiration
+## ✅ Sample Login Request
 
-signed using HMAC-SHA256 and a generated secret key
+```http
+POST /login
+Content-Type: application/json
 
-Token is returned in the response.
+{
+  "username": "raghav",
+  "password": "raghav123"
+}
+```
 
-2. Client Stores Token
-Client (browser, Postman, frontend) receives token
+---
 
-It stores it in:
+## 📬 Contact
 
-Authorization: Bearer <JWT_TOKEN> header for all future requests
+Made by **Raghavendra Chitroju**  
+📧 [narayanacharyulu.chitroju@gmail.com](mailto:narayanacharyulu.chitroju@gmail.com)
 
-. Secured API Request (e.g., GET /students)
-Incoming request has:
+---
 
-makefile
-Copy
-Edit
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR...
-4. JwtFilter Intercepts the Request
-Reads Authorization header
+## 📝 License
 
-Extracts the token from Bearer ...
-
-Calls jwtService.extractUsername(token)
-
-Verifies token signature and extracts subject (username)
-
-5. UserDetails Loading & Validation
-Checks that SecurityContext is not already authenticated
-
-Loads user using:
-
-java
-Copy
-Edit
-context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
-Validates token:
-
-Username matches
-
-Token is not expired
-
-6. Authentication Success
-If valid:
-
-Creates UsernamePasswordAuthenticationToken
-
-Sets it in SecurityContextHolder
-
-Request continues with authenticated context
-
-7. Spring Security Authorization
-Now Spring Security allows access to secured endpoints
-
-Based on roles or just general .authenticated()
+This project is open-source and available under the [MIT License](LICENSE).
