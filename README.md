@@ -111,8 +111,8 @@ POST /login
 Content-Type: application/json
 
 {
-  "username": "raghav",
-  "password": "raghav123"
+  "username": "xxx",
+  "password": "xuxuxu"
 }
 ```
 
